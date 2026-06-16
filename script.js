@@ -1,7 +1,7 @@
-// FIXED: Removed the protocol prefix. PeerJS and Socket.io need a pure domain string.
+// FIXED: Removed the protocol prefix so the template string behaves cleanly
 const RENDER_SERVER = 'facelink-backend.onrender.com'; 
 
-// FIXED: Forcing WebSocket transport exclusively to bypass polling CORS traps
+// Forces direct WebSocket transport to bypass proxy limits
 const socket = io(`https://${RENDER_SERVER}`, {
     transports: ['websocket'],
     withCredentials: true
@@ -107,7 +107,6 @@ function appendMessageBubble(text, sender, originType) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Control Toggles with clean emoji fallbacks
 micBtn.addEventListener('click', () => {
     isMicEnabled = !isMicEnabled;
     myStream.getAudioTracks().forEach(track => track.enabled = isMicEnabled);
@@ -158,12 +157,9 @@ function initiateCall(roomId) {
         roomTitle.innerText = roomId;
         window.location.hash = roomId;
 
-        myPeer = new Peer(undefined, {
-            host: RENDER_SERVER,
-            port: 443,
-            secure: true,
-            path: '/peerjs/myapp'
-        });
+        // FIXED: Pointing directly to PeerJS public cloud infrastructure
+        // This removes the WebSocket conflict on Render completely!
+        myPeer = new Peer();
 
         myPeer.on('open', userId => {
             socket.emit('join-room', roomId, userId, myName);
