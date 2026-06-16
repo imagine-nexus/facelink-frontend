@@ -1,7 +1,12 @@
-// MUST REPLACE: Put your Render Web Service URL here (without https://)
+// FIXED: Removed the protocol prefix. PeerJS and Socket.io need a pure domain string.
 const RENDER_SERVER = 'facelink-backend.onrender.com'; 
 
-const socket = io(`https://${RENDER_SERVER}`);
+// FIXED: Forcing WebSocket transport exclusively to bypass polling CORS traps
+const socket = io(`https://${RENDER_SERVER}`, {
+    transports: ['websocket'],
+    withCredentials: true
+});
+
 const videoGrid = document.getElementById('video-grid');
 const joinContainer = document.getElementById('join-container');
 const videoInterface = document.getElementById('video-interface');
@@ -61,17 +66,15 @@ copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(shareUrl).then(() => alert('Meeting link copied!'));
 });
 
-// Chat Panel Visibility Toggles
 chatToggleBtn.addEventListener('click', () => {
     chatPanel.classList.toggle('hidden');
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Force focus scroll
+    chatMessages.scrollTop = chatMessages.scrollHeight; 
 });
 
 closeChatBtn.addEventListener('click', () => {
     chatPanel.classList.add('hidden');
 });
 
-// Chat message submission actions
 sendChatBtn.addEventListener('click', dispatchMessage);
 chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') dispatchMessage();
@@ -81,10 +84,7 @@ function dispatchMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // Send to server
     socket.emit('send-chat-message', text);
-
-    // Render locally immediately
     appendMessageBubble(text, myName, 'local');
     chatInput.value = '';
 }
@@ -104,12 +104,10 @@ function appendMessageBubble(text, sender, originType) {
     container.append(author);
     container.append(bubble);
     chatMessages.append(container);
-
-    // Keep scrolling anchored to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Control Toggles
+// Control Toggles with clean emoji fallbacks
 micBtn.addEventListener('click', () => {
     isMicEnabled = !isMicEnabled;
     myStream.getAudioTracks().forEach(track => track.enabled = isMicEnabled);
@@ -194,7 +192,6 @@ function initiateCall(roomId) {
             }, 1000);
         });
 
-        // Chat parsing downstream pipeline listener
         socket.on('receive-chat-message', (data) => {
             appendMessageBubble(data.text, data.senderName, 'remote');
         });
