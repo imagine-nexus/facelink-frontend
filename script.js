@@ -1,5 +1,5 @@
 // MUST REPLACE: Put your Render Web Service URL here (without https://)
-const RENDER_SERVER = 'https://facelink-backend.onrender.com'; 
+const RENDER_SERVER = 'facelink-backend.onrender.com'; 
 
 const socket = io(`https://${RENDER_SERVER}`);
 const videoGrid = document.getElementById('video-grid');
