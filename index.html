@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FaceLink - Premium Study Space</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+    <div id="join-container">
+        <h1>FaceLink</h1>
+        <p class="subtitle">Premium multi-peer video collaboration</p>
+        <input type="text" id="name-input" placeholder="Your Name">
+        <div class="divider"></div>
+        <button id="create-btn" class="primary-btn">New Meeting</button>
+        <div class="or-separator">OR</div>
+        <input type="text" id="room-input" placeholder="Enter meeting code">
+        <button id="join-btn" class="secondary-btn">Join Meeting</button>
+    </div>
+
+    <div id="video-interface" class="hidden">
+        <div id="room-header">
+            <div class="meeting-info">
+                <h2>Meeting Code: <span id="room-title"></span></h2>
+            </div>
+            <button id="copy-btn">Copy Join Link</button>
+        </div>
+
+        <div id="meeting-body">
+            <div id="video-grid"></div>
+            
+            <div id="chat-panel" class="hidden">
+                <div class="chat-header">
+                    <h3>In-call messages</h3>
+                    <button id="close-chat-btn">✕</button>
+                </div>
+                <div id="chat-messages"></div>
+                <div id="chat-input-container">
+                    <input type="text" id="chat-input" placeholder="Send a message to everyone">
+                    <button id="send-chat-btn">➔</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="control-dock">
+            <div class="dock-left">
+                <span id="dock-time">FaceLink Live</span>
+            </div>
+            <div class="dock-center">
+                <button id="mic-btn" class="dock-icon active" title="Toggle Microphone">🎤</button>
+                <button id="cam-btn" class="dock-icon active" title="Toggle Camera">📷</button>
+                <button id="chat-toggle-btn" class="dock-icon active" title="Toggle Chat">💬</button>
+                <button id="leave-btn" class="dock-icon danger" title="Leave Call">🛑</button>
+            </div>
+            <div class="dock-right">
+                <span id="participant-count">Participants: 1</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
