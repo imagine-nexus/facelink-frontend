@@ -1,12 +1,13 @@
 {
-  "name": "FaceLink Study Space",
+  "name": "FaceLink - Video Calling and Collaboration",
   "short_name": "FaceLink",
-  "description": "Premium multi-peer video collaboration and study space.",
+  "description": "Enterprise-grade multi-peer secure video communication and workspace.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#202124",
-  "theme_color": "#202124",
-  "orientation": "portrait-primary",
+  "background_color": "#1e1e21",
+  "theme_color": "#1e1e21",
+  "orientation": "any",
+  "categories": ["productivity", "utilities"],
   "icons": [
     {
       "src": "assets/favicon.png",

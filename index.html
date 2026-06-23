@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FaceLink - Premium Study Space</title>
+    <title>FaceLink - Global Collaboration Room</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#202124">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#1e1e21">
     <meta name="apple-mobile-web-app-title" content="FaceLink">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3652/3652191.png">
+    <link rel="apple-touch-icon" href="assets/favicon.png">
 
     <link rel="stylesheet" href="style.css">
     
@@ -18,69 +18,68 @@
 </head>
 <body>
 
-    <div id="join-container">
+    <main id="join-container" class="fade-in">
         <h1>FaceLink</h1>
         <p class="subtitle">Premium multi-peer video collaboration</p>
-        <input type="text" id="name-input" placeholder="Your Name">
+        
+        <label for="name-input" class="sr-only">Your Name</label>
+        <input type="text" id="name-input" placeholder="Your Name" autocomplete="name">
         <div class="divider"></div>
         <button id="create-btn" class="primary-btn">New Meeting</button>
-        <div class="or-separator">OR</div>
+        <div class="or-separator" aria-hidden="true">━ OR ━</div>
+        
+        <label for="room-input" class="sr-only">Meeting Code</label>
         <input type="text" id="room-input" placeholder="Enter meeting code">
         <button id="join-btn" class="secondary-btn">Join Meeting</button>
-    </div>
+    </main>
 
     <div id="video-interface" class="hidden">
-        
-        <div id="room-header">
+        <header id="room-header">
             <div class="meeting-info">
                 <h2>Meeting Code: <span id="room-title"></span></h2>
             </div>
-            <button id="copy-btn">Copy Join Link</button>
-        </div>
+            <button id="copy-btn" aria-label="Copy meeting access link">Copy Join Link</button>
+        </header>
 
         <div id="meeting-body">
+            <section id="video-grid" aria-label="Participant Streams"></section>
             
-            <div id="video-grid"></div>
-            
-            <div id="chat-panel" class="hidden">
+            <aside id="chat-panel" class="hidden" aria-label="In-room messages">
                 <div class="chat-header">
                     <h3>In-call messages</h3>
-                    <button id="close-chat-btn">✕</button>
+                    <button id="close-chat-btn" aria-label="Close Chat Panel">✕</button>
                 </div>
-                <div id="chat-messages"></div>
+                <div id="chat-messages" aria-live="polite"></div>
                 <div id="chat-input-container">
-                    <input type="text" id="chat-input" placeholder="Send a message to everyone">
-                    <button id="send-chat-btn">➔</button>
+                    <input type="text" id="chat-input" placeholder="Send a message to everyone" aria-label="Chat Message Input">
+                    <button id="send-chat-btn" aria-label="Send message">➔</button>
                 </div>
-            </div>
+            </aside>
         </div>
 
-        <div id="control-dock">
+        <nav id="control-dock" aria-label="Call controls">
             <div class="dock-left">
                 <span id="dock-time">FaceLink Live</span>
             </div>
             <div class="dock-center">
-                <button id="mic-btn" class="dock-icon active" title="Toggle Microphone">🎤</button>
-                <button id="cam-btn" class="dock-icon active" title="Toggle Camera">📷</button>
-                <button id="chat-toggle-btn" class="dock-icon active" title="Toggle Chat">💬</button>
-                <button id="leave-btn" class="dock-icon danger" title="Leave Call">🛑</button>
+                <button id="mic-btn" class="dock-icon" title="Toggle Microphone" aria-label="Mute Microphone">🎤</button>
+                <button id="cam-btn" class="dock-icon" title="Toggle Camera" aria-label="Turn off Camera">📷</button>
+                <button id="chat-toggle-btn" class="dock-icon" title="Toggle Chat" aria-label="Toggle Side Chat Panel">💬</button>
+                <button id="leave-btn" class="dock-icon danger" title="Leave Call" aria-label="Leave Call Session">🛑</button>
             </div>
             <div class="dock-right">
-                <span id="participant-count">Participants: 1</span>
+                <span id="participant-count" aria-live="polite">Participants: 1</span>
             </div>
-        </div>
+        </nav>
     </div>
 
-    <script defer src="/_vercel/insights/script.js"></script>
-    
     <script src="script.js"></script>
-
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('FaceLink PWA Service Worker active and listening!'))
-                    .catch(err => console.error('PWA Initialization fault:', err));
+                    .then(() => console.log('[PWA] Service worker deployment verified.'))
+                    .catch(err => console.error('[PWA] Worker initialisation failure:', err));
             });
         }
     </script>

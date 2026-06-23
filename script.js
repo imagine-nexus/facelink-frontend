@@ -1,7 +1,5 @@
-// FIXED: Removed the protocol prefix so the template string behaves cleanly
 const RENDER_SERVER = 'facelink-backend.onrender.com'; 
 
-// Forces direct WebSocket transport to bypass proxy limits
 const socket = io(`https://${RENDER_SERVER}`, {
     transports: ['websocket'],
     withCredentials: true
@@ -17,13 +15,13 @@ const createBtn = document.getElementById('create-btn');
 const roomTitle = document.getElementById('room-title');
 const copyBtn = document.getElementById('copy-btn');
 
-// Dock Elements
+// Control Dock Elements
 const micBtn = document.getElementById('mic-btn');
 const camBtn = document.getElementById('cam-btn');
 const leaveBtn = document.getElementById('leave-btn');
 const participantCount = document.getElementById('participant-count');
 
-// Chat DOM Selectors
+// Panels
 const chatToggleBtn = document.getElementById('chat-toggle-btn');
 const chatPanel = document.getElementById('chat-panel');
 const closeChatBtn = document.getElementById('close-chat-btn');
@@ -47,13 +45,13 @@ if (window.location.hash) {
 }
 
 createBtn.addEventListener('click', () => {
-    const code = Math.random().toString(36).substring(2, 6) + '-' + Math.random().toString(36).substring(2, 6);
+    const code = `${Math.random().toString(36).substring(2, 6)}-${Math.random().toString(36).substring(2, 6)}`;
     initiateCall(code);
 });
 
 joinBtn.addEventListener('click', () => {
     const roomId = roomInput.value.trim();
-    if (!roomId) return alert('Enter a meeting code');
+    if (!roomId) return alert('Please input a valid room invitation code');
     initiateCall(roomId);
 });
 
@@ -63,7 +61,11 @@ leaveBtn.addEventListener('click', () => {
 
 copyBtn.addEventListener('click', () => {
     const shareUrl = `${window.location.origin}${window.location.pathname}#${currentRoomId}`;
-    navigator.clipboard.writeText(shareUrl).then(() => alert('Meeting link copied!'));
+    navigator.clipboard.writeText(shareUrl).then(() => {
+        const originalText = copyBtn.innerText;
+        copyBtn.innerText = "Copied! ✓";
+        setTimeout(() => copyBtn.innerText = originalText, 2000);
+    });
 });
 
 chatToggleBtn.addEventListener('click', () => {
@@ -76,14 +78,11 @@ closeChatBtn.addEventListener('click', () => {
 });
 
 sendChatBtn.addEventListener('click', dispatchMessage);
-chatInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') dispatchMessage();
-});
+chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') dispatchMessage(); });
 
 function dispatchMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
-
     socket.emit('send-chat-message', text);
     appendMessageBubble(text, myName, 'local');
     chatInput.value = '';
@@ -101,8 +100,7 @@ function appendMessageBubble(text, sender, originType) {
     bubble.className = 'msg-bubble';
     bubble.innerText = text;
 
-    container.append(author);
-    container.append(bubble);
+    container.append(author, bubble);
     chatMessages.append(container);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -110,15 +108,14 @@ function appendMessageBubble(text, sender, originType) {
 micBtn.addEventListener('click', () => {
     isMicEnabled = !isMicEnabled;
     myStream.getAudioTracks().forEach(track => track.enabled = isMicEnabled);
-    toggleDockIconStatus(micBtn, isMicEnabled, '🎤', '🔇');
+    toggleDockIconStatus(micBtn, isMicEnabled, '🎤', '🎙️❌');
     socket.emit('toggle-track', 'audio', isMicEnabled);
-    updateLocalIndicators('audio', isMicEnabled);
 });
 
 camBtn.addEventListener('click', () => {
     isCamEnabled = !isCamEnabled;
     myStream.getVideoTracks().forEach(track => track.enabled = isCamEnabled);
-    toggleDockIconStatus(camBtn, isCamEnabled, '📷', '🚫');
+    toggleDockIconStatus(camBtn, isCamEnabled, '📷', '📹❌');
     socket.emit('toggle-track', 'video', isCamEnabled);
     updateLocalIndicators('video', isCamEnabled);
 });
@@ -142,7 +139,7 @@ function updateLocalIndicators(type, enabled) {
 }
 
 function initiateCall(roomId) {
-    myName = nameInput.value.trim() || 'Guest';
+    myName = nameInput.value.trim() || 'Global Guest';
     currentRoomId = roomId;
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
@@ -150,15 +147,13 @@ function initiateCall(roomId) {
         
         const myVideo = document.createElement('video');
         myVideo.muted = true; 
-        addVideoStream(myVideo, stream, myName + " (You)", 'local');
+        addVideoStream(myVideo, stream, `${myName} (You)`, 'local');
 
         joinContainer.classList.add('hidden');
         videoInterface.classList.remove('hidden');
         roomTitle.innerText = roomId;
         window.location.hash = roomId;
 
-        // FIXED: Pointing directly to PeerJS public cloud infrastructure
-        // This removes the WebSocket conflict on Render completely!
         myPeer = new Peer();
 
         myPeer.on('open', userId => {
@@ -183,9 +178,7 @@ function initiateCall(roomId) {
         });
 
         socket.on('user-connected', (userId, userName) => {
-            setTimeout(() => {
-                connectToNewUser(userId, stream, userName);
-            }, 1000);
+            setTimeout(() => connectToNewUser(userId, stream, userName), 1000);
         });
 
         socket.on('receive-chat-message', (data) => {
@@ -200,8 +193,8 @@ function initiateCall(roomId) {
             }
         });
 
-    }).catch(err => {
-        alert('Camera/Microphone components access denied.');
+    }).catch(() => {
+        alert('Media Access Interrupted: Standard Audio/Video access permissions are mandatory.');
     });
 }
 
@@ -226,13 +219,6 @@ function connectToNewUser(userId, stream, userName) {
             updateParticipantCount();
         }
     });
-    
-    call.on('close', () => {
-        if (peerDOMWrappers[userId]) {
-            peerDOMWrappers[userId].remove();
-            delete peerDOMWrappers[userId];
-        }
-    });
     peers[userId] = call;
 }
 
@@ -248,8 +234,7 @@ function addVideoStream(video, stream, name, userId) {
     nameLabel.className = 'name-label';
     nameLabel.innerText = name;
 
-    wrapper.append(video);
-    wrapper.append(nameLabel);
+    wrapper.append(video, nameLabel);
     videoGrid.append(wrapper);
 
     return wrapper;
