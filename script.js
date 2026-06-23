@@ -26,6 +26,10 @@ const handBtn = document.getElementById('hand-btn');
 const muteAllBtn = document.getElementById('mute-all-btn');
 const boardBtn = document.getElementById('board-btn');
 
+// More Options Menu Elements
+const moreBtn = document.getElementById('more-btn');
+const moreMenu = document.getElementById('more-menu');
+
 // Panels
 const chatToggleBtn = document.getElementById('chat-toggle-btn');
 const chatPanel = document.getElementById('chat-panel');
@@ -52,6 +56,26 @@ let participantList = new Set();
 if (window.location.hash) {
     roomInput.value = window.location.hash.substring(1);
 }
+
+// --- More Options Menu Logic ---
+moreBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); 
+    moreMenu.classList.toggle('hidden');
+});
+
+// Close menu if clicking outside of it
+document.addEventListener('click', (e) => {
+    if (!moreMenu.contains(e.target) && !moreBtn.contains(e.target)) {
+        moreMenu.classList.add('hidden');
+    }
+});
+
+// Close menu when a button inside it is clicked
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+        moreMenu.classList.add('hidden');
+    });
+});
 
 // --- Join & Waiting Room Logic ---
 document.getElementById('create-btn').addEventListener('click', () => {

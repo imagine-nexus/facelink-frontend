@@ -87,10 +87,17 @@
                 <button id="mic-btn" class="dock-icon" title="Toggle Microphone" aria-label="Mute Microphone">🎤</button>
                 <button id="cam-btn" class="dock-icon" title="Toggle Camera" aria-label="Turn off Camera">📷</button>
                 <button id="share-btn" class="dock-icon" title="Share Screen">💻</button>
-                <button id="hand-btn" class="dock-icon" title="Raise Hand">✋</button>
-                <button id="board-btn" class="dock-icon" title="Whiteboard">🎨</button>
-                <button id="chat-toggle-btn" class="dock-icon" title="Toggle Chat" aria-label="Toggle Side Chat Panel">💬</button>
-                <button id="mute-all-btn" class="dock-icon hidden" title="Mute All Participants">🤫</button>
+                
+                <div class="more-options-container">
+                    <button id="more-btn" class="dock-icon" title="More Options" aria-label="More Options">⋮</button>
+                    <div id="more-menu" class="dropdown-menu hidden">
+                        <button id="hand-btn" class="menu-item" title="Raise Hand">✋ Raise Hand</button>
+                        <button id="board-btn" class="menu-item" title="Whiteboard">🎨 Whiteboard</button>
+                        <button id="chat-toggle-btn" class="menu-item" title="Toggle Chat">💬 Chat</button>
+                        <button id="mute-all-btn" class="menu-item hidden" title="Mute All Participants">🤫 Mute All</button>
+                    </div>
+                </div>
+
                 <button id="leave-btn" class="dock-icon danger" title="Leave Call" aria-label="Leave Call Session">🛑</button>
             </div>
             <div class="dock-right">
