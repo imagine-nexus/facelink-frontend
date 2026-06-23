@@ -70,6 +70,32 @@ button { border: none; border-radius: var(--radius-md); cursor: pointer; font-we
 .secondary-btn { background: transparent; border: 1px solid var(--accent-blue); color: var(--accent-blue); width: 100%; padding: 14px; }
 .secondary-btn:hover { background: rgba(26, 115, 232, 0.1); }
 
+/* --- WAITING ROOM --- */
+#waiting-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(30, 30, 33, 0.95);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.waiting-box {
+    background: var(--bg-secondary);
+    padding: 40px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+.spinner {
+    margin: 20px auto;
+    width: 40px; height: 40px;
+    border: 4px solid var(--bg-tertiary);
+    border-top: 4px solid var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
 /* --- VIDEO INTERFACE --- */
 #video-interface { width: 100vw; height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-primary); }
 
@@ -122,6 +148,43 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
     font-weight: 500;
 }
 
+/* --- HAND RAISE & HOST UI --- */
+.hand-icon {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: #fbbc04;
+    color: #000;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 16px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    z-index: 10;
+}
+#host-badge {
+    background: #fbbc04; color: #000; font-size: 11px;
+    padding: 3px 8px; border-radius: 12px; font-weight: bold; margin-left: 10px;
+}
+#admission-prompts {
+    position: fixed; top: 80px; right: 20px; z-index: 300;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.admit-card {
+    background: var(--bg-secondary); padding: 12px 20px;
+    border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    display: flex; align-items: center; gap: 15px;
+}
+.admit-btn { background: var(--accent-blue); padding: 6px 12px; font-size: 12px; }
+
+/* --- WHITEBOARD --- */
+#whiteboard-container {
+    flex-grow: 1; background: #fff; border-radius: var(--radius-lg);
+    margin-right: 16px; display: flex; flex-direction: column;
+    overflow: hidden; max-width: 60%;
+}
+#whiteboard-canvas { width: 100%; height: 100%; cursor: crosshair; background: #fff; }
+#clear-board-btn { background: #e8eaed; color: #000; font-size: 12px; padding: 6px 12px; margin-right: 10px;}
+
 /* --- CHAT PANEL --- */
 #chat-panel {
     width: 340px;
@@ -134,8 +197,8 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
     box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--bg-tertiary); padding-bottom: 10px; }
-.chat-header h3 { font-size: 15px; font-weight: 600; }
-#close-chat-btn { background: transparent; color: var(--text-muted); font-size: 18px; }
+.chat-header h3 { font-size: 15px; font-weight: 600; color: #fff;}
+#close-chat-btn, #close-board-btn { background: transparent; color: var(--text-muted); font-size: 18px; }
 
 #chat-messages { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
 .message-container { display: flex; flex-direction: column; max-width: 85%; }
@@ -186,9 +249,10 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 @media screen and (max-width: 768px) {
     #video-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
     #chat-panel { position: fixed; top: 100px; left: 16px; right: 16px; bottom: 120px; width: auto; margin-left: 0; z-index: 200; }
+    #whiteboard-container { position: fixed; top: 80px; left: 16px; right: 16px; bottom: 120px; max-width: none; z-index: 150; margin: 0;}
     #control-dock { height: auto; padding: 12px; border-radius: var(--radius-lg); }
     .dock-left, .dock-right { display: none; }
-    .dock-center { width: 100%; }
+    .dock-center { width: 100%; flex-wrap: wrap; }
 }
 @media screen and (max-width: 480px) {
     #video-grid { grid-template-columns: 1fr; }

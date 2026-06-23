@@ -33,17 +33,39 @@
         <button id="join-btn" class="secondary-btn">Join Meeting</button>
     </main>
 
+    <div id="waiting-overlay" class="hidden">
+        <div class="waiting-box">
+            <h2>Waiting Room</h2>
+            <p>Please wait, the meeting host will let you in soon.</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+
     <div id="video-interface" class="hidden">
         <header id="room-header">
             <div class="meeting-info">
                 <h2>Meeting Code: <span id="room-title"></span></h2>
+                <span id="host-badge" class="hidden">👑 Host</span>
             </div>
             <button id="copy-btn" aria-label="Copy meeting access link">Copy Join Link</button>
         </header>
 
+        <div id="admission-prompts"></div>
+
         <div id="meeting-body">
             <section id="video-grid" aria-label="Participant Streams"></section>
             
+            <div id="whiteboard-container" class="hidden">
+                <div class="chat-header">
+                    <h3>Shared Whiteboard</h3>
+                    <div>
+                        <button id="clear-board-btn">Clear</button>
+                        <button id="close-board-btn">✕</button>
+                    </div>
+                </div>
+                <canvas id="whiteboard-canvas"></canvas>
+            </div>
+
             <aside id="chat-panel" class="hidden" aria-label="In-room messages">
                 <div class="chat-header">
                     <h3>In-call messages</h3>
@@ -64,7 +86,11 @@
             <div class="dock-center">
                 <button id="mic-btn" class="dock-icon" title="Toggle Microphone" aria-label="Mute Microphone">🎤</button>
                 <button id="cam-btn" class="dock-icon" title="Toggle Camera" aria-label="Turn off Camera">📷</button>
+                <button id="share-btn" class="dock-icon" title="Share Screen">💻</button>
+                <button id="hand-btn" class="dock-icon" title="Raise Hand">✋</button>
+                <button id="board-btn" class="dock-icon" title="Whiteboard">🎨</button>
                 <button id="chat-toggle-btn" class="dock-icon" title="Toggle Chat" aria-label="Toggle Side Chat Panel">💬</button>
+                <button id="mute-all-btn" class="dock-icon hidden" title="Mute All Participants">🤫</button>
                 <button id="leave-btn" class="dock-icon danger" title="Leave Call" aria-label="Leave Call Session">🛑</button>
             </div>
             <div class="dock-right">
