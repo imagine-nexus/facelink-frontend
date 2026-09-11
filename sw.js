@@ -1,4 +1,4 @@
-const CACHE_NAME = 'facelink-prod-v2';
+const CACHE_NAME = 'facelink-prod-v2.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -9,17 +9,15 @@ const ASSETS_TO_CACHE = [
   '/assets/favicon.png'
 ];
 
-// 1. INSTALL EVENT - Cache assets & force immediate takeover
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); // Forces this new worker to activate instantly instead of waiting for tabs to close
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
 });
 
-// 2. ACTIVATE EVENT - Clean up old caches & take control of the page
 self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim()); // Instantly controls all open FaceLink tabs
+  event.waitUntil(clients.claim());
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
@@ -31,25 +29,30 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. FETCH EVENT - Network First, Fallback to Cache
 self.addEventListener('fetch', (event) => {
-  // Ignore non-GET requests and WebRTC/Socket.io traffic
-  if (event.request.method !== 'GET' || event.request.url.includes('socket.io') || event.request.url.includes('peerjs')) {
+  // FIX: Ignore non-HTTP requests (like chrome-extension://), non-GET requests, and WebRTC traffic
+  if (
+    event.request.method !== 'GET' || 
+    !event.request.url.startsWith('http') || 
+    event.request.url.includes('socket.io') || 
+    event.request.url.includes('peerjs')
+  ) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // If the network request is successful, update the cache invisibly in the background
-        const responseClone = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
-        return networkResponse; // Serve the fresh file to the user
+        // Only cache valid, successful responses
+        if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseClone);
+            });
+        }
+        return networkResponse;
       })
       .catch(() => {
-        // If the user is offline or the network fails, serve the local cached version
         return caches.match(event.request);
       })
   );
