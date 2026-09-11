@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FaceLink - Global Collaboration Room</title>
+    <title>FaceLink - Global Collaboration Space</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="#1e1e21">
     <meta name="apple-mobile-web-app-title" content="FaceLink">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="assets/favicon.png">
 
+    <!-- Google Material Symbols (Professional Icons) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="style.css">
     
     <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"></script>
@@ -18,6 +21,7 @@
 </head>
 <body>
 
+    <!-- Join Screen -->
     <main id="join-container" class="fade-in">
         <h1>FaceLink</h1>
         <p class="subtitle">Premium multi-peer video collaboration</p>
@@ -33,6 +37,7 @@
         <button id="join-btn" class="secondary-btn">Join Meeting</button>
     </main>
 
+    <!-- Waiting Room Overlay -->
     <div id="waiting-overlay" class="hidden">
         <div class="waiting-box">
             <h2>Waiting Room</h2>
@@ -41,64 +46,100 @@
         </div>
     </div>
 
+    <!-- Active Meeting Interface -->
     <div id="video-interface" class="hidden">
         <header id="room-header">
             <div class="meeting-info">
                 <h2>Meeting Code: <span id="room-title"></span></h2>
-                <span id="host-badge" class="hidden">👑 Host</span>
+                <span id="host-badge" class="hidden">
+                    <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 4px;">shield_person</span> Host
+                </span>
             </div>
-            <button id="copy-btn" aria-label="Copy meeting access link">Copy Join Link</button>
+            <button id="copy-btn" aria-label="Copy meeting access link">
+                <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">link</span> Copy Join Link
+            </button>
         </header>
 
+        <!-- Floating Host Admissions Notifications -->
         <div id="admission-prompts"></div>
 
         <div id="meeting-body">
+            <!-- Video Grid -->
             <section id="video-grid" aria-label="Participant Streams"></section>
             
+            <!-- Collaborative Whiteboard -->
             <div id="whiteboard-container" class="hidden">
-                <div class="chat-header">
+                <div class="board-header">
                     <h3>Shared Whiteboard</h3>
-                    <div>
+                    <div class="board-actions">
                         <button id="clear-board-btn">Clear</button>
-                        <button id="close-board-btn">✕</button>
+                        <button id="close-board-btn" aria-label="Close Whiteboard">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
                     </div>
                 </div>
                 <canvas id="whiteboard-canvas"></canvas>
             </div>
 
+            <!-- In-call Chat Panel -->
             <aside id="chat-panel" class="hidden" aria-label="In-room messages">
                 <div class="chat-header">
                     <h3>In-call messages</h3>
-                    <button id="close-chat-btn" aria-label="Close Chat Panel">✕</button>
+                    <button id="close-chat-btn" aria-label="Close Chat Panel">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
                 </div>
                 <div id="chat-messages" aria-live="polite"></div>
                 <div id="chat-input-container">
                     <input type="text" id="chat-input" placeholder="Send a message to everyone" aria-label="Chat Message Input">
-                    <button id="send-chat-btn" aria-label="Send message">➔</button>
+                    <button id="send-chat-btn" aria-label="Send message">
+                        <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
+                    </button>
                 </div>
             </aside>
         </div>
 
+        <!-- Clean Control Dock -->
         <nav id="control-dock" aria-label="Call controls">
             <div class="dock-left">
                 <span id="dock-time">FaceLink Live</span>
             </div>
             <div class="dock-center">
-                <button id="mic-btn" class="dock-icon" title="Toggle Microphone" aria-label="Mute Microphone">🎤</button>
-                <button id="cam-btn" class="dock-icon" title="Toggle Camera" aria-label="Turn off Camera">📷</button>
-                <button id="share-btn" class="dock-icon" title="Share Screen">💻</button>
+                <!-- Primary Controls -->
+                <button id="mic-btn" class="dock-icon" title="Toggle Microphone" aria-label="Mute Microphone">
+                    <span class="material-symbols-outlined">mic</span>
+                </button>
+                <button id="cam-btn" class="dock-icon" title="Toggle Camera" aria-label="Turn off Camera">
+                    <span class="material-symbols-outlined">videocam</span>
+                </button>
+                <button id="share-btn" class="dock-icon" title="Share Screen" aria-label="Share Screen">
+                    <span class="material-symbols-outlined">screen_share</span>
+                </button>
                 
+                <!-- 3-Dots Dropdown Menu -->
                 <div class="more-options-container">
-                    <button id="more-btn" class="dock-icon" title="More Options" aria-label="More Options">⋮</button>
+                    <button id="more-btn" class="dock-icon" title="More Options" aria-label="More Options">
+                        <span class="material-symbols-outlined">more_vert</span>
+                    </button>
                     <div id="more-menu" class="dropdown-menu hidden">
-                        <button id="hand-btn" class="menu-item" title="Raise Hand">✋ Raise Hand</button>
-                        <button id="board-btn" class="menu-item" title="Whiteboard">🎨 Whiteboard</button>
-                        <button id="chat-toggle-btn" class="menu-item" title="Toggle Chat">💬 Chat</button>
-                        <button id="mute-all-btn" class="menu-item hidden" title="Mute All Participants">🤫 Mute All</button>
+                        <button id="hand-btn" class="menu-item" title="Raise Hand">
+                            <span class="material-symbols-outlined">front_hand</span> Raise Hand
+                        </button>
+                        <button id="board-btn" class="menu-item" title="Whiteboard">
+                            <span class="material-symbols-outlined">palette</span> Whiteboard
+                        </button>
+                        <button id="chat-toggle-btn" class="menu-item" title="Toggle Chat">
+                            <span class="material-symbols-outlined">chat</span> Chat
+                        </button>
+                        <button id="mute-all-btn" class="menu-item hidden" title="Mute All Participants">
+                            <span class="material-symbols-outlined">volume_off</span> Mute All
+                        </button>
                     </div>
                 </div>
 
-                <button id="leave-btn" class="dock-icon danger" title="Leave Call" aria-label="Leave Call Session">🛑</button>
+                <button id="leave-btn" class="dock-icon danger" title="Leave Call" aria-label="Leave Call Session">
+                    <span class="material-symbols-outlined">call_end</span>
+                </button>
             </div>
             <div class="dock-right">
                 <span id="participant-count" aria-live="polite">Participants: 1</span>
@@ -112,9 +153,9 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then(() => console.log('[PWA] Service worker deployment verified.'))
-                    .catch(err => console.error('[PWA] Worker initialisation failure:', err));
+                    .catch(err => console.error('[PWA] Worker initialization failure:', err));
             });
         }
     </script>
 </body>
-</html>
+</html>s

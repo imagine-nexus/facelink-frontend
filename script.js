@@ -5,7 +5,7 @@ const socket = io(`https://${RENDER_SERVER}`, {
     withCredentials: true
 });
 
-// Core UI Elements
+// DOM Elements
 const videoGrid = document.getElementById('video-grid');
 const joinContainer = document.getElementById('join-container');
 const videoInterface = document.getElementById('video-interface');
@@ -16,22 +16,22 @@ const copyBtn = document.getElementById('copy-btn');
 const waitingOverlay = document.getElementById('waiting-overlay');
 const admissionPrompts = document.getElementById('admission-prompts');
 
-// Control Dock Elements
+// Controls
 const micBtn = document.getElementById('mic-btn');
 const camBtn = document.getElementById('cam-btn');
+const shareBtn = document.getElementById('share-btn');
 const leaveBtn = document.getElementById('leave-btn');
 const participantCount = document.getElementById('participant-count');
-const shareBtn = document.getElementById('share-btn');
-const handBtn = document.getElementById('hand-btn');
-const muteAllBtn = document.getElementById('mute-all-btn');
-const boardBtn = document.getElementById('board-btn');
 
-// More Options Menu Elements
+// 3-Dots Dropdown Menu Items
 const moreBtn = document.getElementById('more-btn');
 const moreMenu = document.getElementById('more-menu');
+const handBtn = document.getElementById('hand-btn');
+const boardBtn = document.getElementById('board-btn');
+const chatToggleBtn = document.getElementById('chat-toggle-btn');
+const muteAllBtn = document.getElementById('mute-all-btn');
 
 // Panels
-const chatToggleBtn = document.getElementById('chat-toggle-btn');
 const chatPanel = document.getElementById('chat-panel');
 const closeChatBtn = document.getElementById('close-chat-btn');
 const chatInput = document.getElementById('chat-input');
@@ -57,20 +57,18 @@ if (window.location.hash) {
     roomInput.value = window.location.hash.substring(1);
 }
 
-// --- More Options Menu Logic ---
+// --- 3-Dots Menu Dropdown Interaction ---
 moreBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     moreMenu.classList.toggle('hidden');
 });
 
-// Close menu if clicking outside of it
 document.addEventListener('click', (e) => {
     if (!moreMenu.contains(e.target) && !moreBtn.contains(e.target)) {
         moreMenu.classList.add('hidden');
     }
 });
 
-// Close menu when a button inside it is clicked
 document.querySelectorAll('.menu-item').forEach(item => {
     item.addEventListener('click', () => {
         moreMenu.classList.add('hidden');
@@ -86,7 +84,7 @@ document.getElementById('create-btn').addEventListener('click', () => {
 
 document.getElementById('join-btn').addEventListener('click', () => {
     const roomId = roomInput.value.trim();
-    if (!roomId) return alert('Please input a valid room invitation code');
+    if (!roomId) return alert('Please enter a meeting code');
     myName = nameInput.value.trim() || 'Guest';
     
     joinContainer.classList.add('hidden');
@@ -121,7 +119,7 @@ socket.on('join-request', (user) => {
     admissionPrompts.append(card);
 });
 
-// --- Core Call Initialization ---
+// --- Call Initialization ---
 function initiateCall(roomId) {
     currentRoomId = roomId;
 
@@ -177,7 +175,7 @@ function initiateCall(roomId) {
         });
 
     }).catch(() => {
-        alert('Media Access Interrupted: Standard Audio/Video access permissions are mandatory.');
+        alert('Media permissions are required to participate in the meeting.');
     });
 }
 
@@ -233,9 +231,9 @@ leaveBtn.addEventListener('click', () => window.location.reload());
 copyBtn.addEventListener('click', () => {
     const shareUrl = `${window.location.origin}${window.location.pathname}#${currentRoomId}`;
     navigator.clipboard.writeText(shareUrl).then(() => {
-        const originalText = copyBtn.innerText;
-        copyBtn.innerText = "Copied! ✓";
-        setTimeout(() => copyBtn.innerText = originalText, 2000);
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = "<span class='material-symbols-outlined' style='font-size:16px; vertical-align:middle; margin-right:4px;'>check</span> Copied!";
+        setTimeout(() => copyBtn.innerHTML = originalHTML, 2000);
     });
 });
 
@@ -273,14 +271,14 @@ function appendMessageBubble(text, sender, originType) {
 micBtn.addEventListener('click', () => {
     isMicEnabled = !isMicEnabled;
     myStream.getAudioTracks().forEach(track => track.enabled = isMicEnabled);
-    toggleDockIconStatus(micBtn, isMicEnabled, '🎤', '🎙️❌');
+    toggleDockIconStatus(micBtn, isMicEnabled, 'mic', 'mic_off');
     socket.emit('toggle-track', 'audio', isMicEnabled);
 });
 
 camBtn.addEventListener('click', () => {
     isCamEnabled = !isCamEnabled;
     myStream.getVideoTracks().forEach(track => track.enabled = isCamEnabled);
-    toggleDockIconStatus(camBtn, isCamEnabled, '📷', '📹❌');
+    toggleDockIconStatus(camBtn, isCamEnabled, 'videocam', 'videocam_off');
     socket.emit('toggle-track', 'video', isCamEnabled);
     updateLocalIndicators('video', isCamEnabled);
 });
@@ -288,10 +286,10 @@ camBtn.addEventListener('click', () => {
 function toggleDockIconStatus(element, enabled, activeSymbol, inactiveSymbol) {
     if (enabled) {
         element.classList.remove('muted');
-        element.innerText = activeSymbol;
+        element.innerHTML = `<span class="material-symbols-outlined">${activeSymbol}</span>`;
     } else {
         element.classList.add('muted');
-        element.innerText = inactiveSymbol;
+        element.innerHTML = `<span class="material-symbols-outlined">${inactiveSymbol}</span>`;
     }
 }
 
@@ -311,7 +309,7 @@ shareBtn.addEventListener('click', async () => {
             const videoTrack = screenStream.getVideoTracks()[0];
             
             Object.values(peers).forEach(call => {
-                const sender = call.peerConnection.getSenders().find(s => s.track.kind === 'video');
+                const sender = call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
                 if (sender) sender.replaceTrack(videoTrack);
             });
             
@@ -320,7 +318,9 @@ shareBtn.addEventListener('click', async () => {
             shareBtn.classList.add('muted');
 
             videoTrack.onended = stopScreenShare;
-        } catch (e) { console.error('Screen sharing denied'); }
+        } catch (e) {
+            console.error('Screen sharing canceled or denied');
+        }
     } else {
         stopScreenShare();
     }
@@ -329,7 +329,7 @@ shareBtn.addEventListener('click', async () => {
 function stopScreenShare() {
     const videoTrack = myStream.getVideoTracks()[0];
     Object.values(peers).forEach(call => {
-        const sender = call.peerConnection.getSenders().find(s => s.track.kind === 'video');
+        const sender = call.peerConnection.getSenders().find(s => s.track && s.track.kind === 'video');
         if (sender) sender.replaceTrack(videoTrack);
     });
     document.querySelector('#user-local video').srcObject = myStream;
@@ -351,16 +351,20 @@ function toggleHandUI(userId, raised) {
     const wrapper = document.getElementById(userId === 'local' ? 'user-local' : `user-${userId}`);
     if (!wrapper) return;
     if (raised) {
-        const icon = document.createElement('div');
-        icon.className = 'hand-icon'; icon.innerText = '✋'; icon.id = `hand-${userId}`;
-        wrapper.append(icon);
+        if (!document.getElementById(`hand-${userId}`)) {
+            const icon = document.createElement('div');
+            icon.className = 'hand-icon';
+            icon.innerHTML = '<span class="material-symbols-outlined" style="font-size: 18px;">front_hand</span>';
+            icon.id = `hand-${userId}`;
+            wrapper.append(icon);
+        }
     } else {
         const icon = document.getElementById(`hand-${userId}`);
         if (icon) icon.remove();
     }
 }
 
-// --- Host Controls (Force Mute) ---
+// --- Host Controls (Force Mute All) ---
 muteAllBtn.addEventListener('click', () => {
     if (isHost) socket.emit('mute-all');
 });
@@ -370,7 +374,7 @@ socket.on('force-mute', () => {
         isMicEnabled = false;
         myStream.getAudioTracks().forEach(track => track.enabled = false);
         micBtn.classList.add('muted');
-        micBtn.innerText = '🎙️❌';
+        micBtn.innerHTML = '<span class="material-symbols-outlined">mic_off</span>';
         socket.emit('toggle-track', 'audio', false);
     }
 });
@@ -383,13 +387,15 @@ let drawing = false;
 boardBtn.addEventListener('click', () => {
     const board = document.getElementById('whiteboard-container');
     board.classList.toggle('hidden');
-    if(!board.classList.contains('hidden')){
+    if (!board.classList.contains('hidden')) {
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
     }
 });
 
-document.getElementById('close-board-btn').addEventListener('click', () => document.getElementById('whiteboard-container').classList.add('hidden'));
+document.getElementById('close-board-btn').addEventListener('click', () => {
+    document.getElementById('whiteboard-container').classList.add('hidden');
+});
 
 document.getElementById('clear-board-btn').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
