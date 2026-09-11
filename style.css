@@ -35,8 +35,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    min-height: -webkit-fill-available; /* Safari Mobile Fix */
+    min-height: 100vh;  /* Fallback for older browsers */
+    min-height: 100dvh; /* Modern fix: Perfectly centers on PC & fixes mobile screens */
     overflow: hidden;
     position: relative;
     /* Respect device notches and home bars */
