@@ -23,12 +23,6 @@
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* --- CUSTOM GLASS SCROLLBARS (PC/Mac) --- */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
-
 body {
     background-color: var(--bg-primary);
     color: var(--text-main);
@@ -36,11 +30,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    min-height: -webkit-fill-available; /* Safari Mobile Fix */
     overflow: hidden;
     position: relative;
-    /* Respect device notches and home bars */
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 /* Ambient Background Glow for Glassmorphism Refraction */
@@ -85,11 +76,11 @@ body::after {
     border-radius: var(--radius-lg);
     text-align: center;
     box-shadow: 0 24px 48px rgba(0,0,0,0.4);
-    width: 90%;
+    width: 100%;
     max-width: 400px;
 }
 
-#join-container h1 { font-size: clamp(24px, 5vw, 32px); margin-bottom: 6px; letter-spacing: -0.5px; }
+#join-container h1 { font-size: 32px; margin-bottom: 6px; letter-spacing: -0.5px; }
 .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
 
 #join-container input {
@@ -100,7 +91,7 @@ body::after {
     border-radius: var(--radius-md);
     background: rgba(0, 0, 0, 0.2);
     color: #fff;
-    font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+    font-size: 15px;
     outline: none;
     transition: var(--transition-smooth);
 }
@@ -111,20 +102,9 @@ body::after {
 
 button { border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; transition: var(--transition-smooth); }
 .primary-btn { background: var(--accent-blue); color: white; width: 100%; padding: 14px; box-shadow: 0 4px 14px rgba(26,115,232,0.3); }
-
-/* Only apply hover effects on devices with mice (PCs/Macs) to prevent sticky touch states */
-@media (hover: hover) {
-    .primary-btn:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
-    .secondary-btn:hover { background: rgba(26, 115, 232, 0.2); }
-    #copy-btn:hover { background: rgba(255, 255, 255, 0.1); }
-    .dock-icon:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
-    .dock-icon.danger:hover { background: var(--accent-red-hover); }
-    .menu-item:hover { background: rgba(255, 255, 255, 0.1); }
-}
-
-.primary-btn:active { transform: scale(0.98); }
+.primary-btn:hover { background: var(--accent-blue-hover); transform: translateY(-1px); }
 .secondary-btn { background: rgba(26, 115, 232, 0.1); backdrop-filter: blur(4px); border: 1px solid var(--accent-blue); color: #8ab4f8; width: 100%; padding: 14px; }
-.secondary-btn:active { transform: scale(0.98); }
+.secondary-btn:hover { background: rgba(26, 115, 232, 0.2); }
 
 /* --- WAITING ROOM (GLASS) --- */
 #waiting-overlay {
@@ -145,7 +125,6 @@ button { border: none; border-radius: var(--radius-md); cursor: pointer; font-we
     padding: 40px;
     border-radius: var(--radius-lg);
     text-align: center;
-    width: 90%;
     max-width: 360px;
     box-shadow: 0 24px 48px rgba(0,0,0,0.5);
 }
@@ -178,18 +157,11 @@ button { border: none; border-radius: var(--radius-md); cursor: pointer; font-we
     border-radius: var(--radius-md);
 }
 .meeting-info { display: flex; align-items: center; }
-#room-header h2 { font-size: clamp(13px, 3vw, 15px); font-weight: 500; color: #e8eaed; }
-#copy-btn { background: var(--glass-highlight); border: var(--glass-border); color: #8ab4f8; padding: 8px 16px; font-size: 13px; border-radius: 20px; display: flex; align-items: center;}
+#room-header h2 { font-size: 15px; font-weight: 500; color: #e8eaed; }
+#copy-btn { background: var(--glass-highlight); border: var(--glass-border); color: #8ab4f8; padding: 8px 16px; font-size: 13px; border-radius: 20px; }
+#copy-btn:hover { background: rgba(255, 255, 255, 0.1); }
 
-#meeting-body { 
-    display: flex; 
-    width: 100%; 
-    max-width: 2560px; /* Limits width on Ultra-wide 4K/5K displays */
-    margin: 0 auto;
-    flex-grow: 1; 
-    padding: 16px 16px 112px 16px; 
-    overflow: hidden; 
-}
+#meeting-body { display: flex; width: 100%; flex-grow: 1; padding: 16px 16px 112px 16px; overflow: hidden; }
 
 #video-grid {
     display: grid;
@@ -284,7 +256,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .board-actions { display: flex; gap: 8px; align-items: center; }
 #clear-board-btn { background: var(--glass-highlight); border: var(--glass-border); color: #fff; font-size: 12px; padding: 6px 12px; }
 #close-board-btn { background: transparent; color: var(--text-muted); font-size: 18px; padding: 0 4px; }
-#whiteboard-canvas { width: 100%; height: 100%; cursor: crosshair; background: #fff; touch-action: none; }
+#whiteboard-canvas { width: 100%; height: 100%; cursor: crosshair; background: #fff; }
 
 /* --- CHAT PANEL (GLASS) --- */
 #chat-panel {
@@ -304,7 +276,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .chat-header h3 { font-size: 15px; font-weight: 600; color: #fff;}
 #close-chat-btn { background: transparent; color: var(--text-muted); font-size: 18px; }
 
-#chat-messages { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; padding-right: 4px; }
+#chat-messages { flex-grow: 1; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 12px; }
 .message-container { display: flex; flex-direction: column; max-width: 85%; }
 .message-container.local { align-self: flex-end; }
 .message-container.remote { align-self: flex-start; }
@@ -322,8 +294,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 /* --- CONTROLS DOCK (GLASS) --- */
 #control-dock {
     position: fixed;
-    /* Calc formula respects modern mobile device home-bars (iOS safe areas) */
-    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
     width: calc(100% - 32px);
@@ -346,8 +317,10 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .dock-center { display: flex; gap: 12px; justify-content: center; width: 50%; }
 
 .dock-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--glass-highlight); border: var(--glass-border); color: #fff; font-size: 18px; display: flex; justify-content: center; align-items: center; transition: var(--transition-smooth); }
+.dock-icon:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); }
 .dock-icon.muted { background: var(--accent-red) !important; border: none; box-shadow: 0 4px 12px rgba(234,67,53,0.3); }
 .dock-icon.danger { background: var(--accent-red); border: none; width: 64px; border-radius: 22px; box-shadow: 0 4px 12px rgba(234,67,53,0.3); }
+.dock-icon.danger:hover { background: var(--accent-red-hover); }
 
 .video-muted video { opacity: 0.15; }
 
@@ -363,7 +336,7 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
     bottom: 64px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(30, 30, 34, 0.85);
+    background: rgba(30, 30, 34, 0.75);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: var(--glass-border);
@@ -379,81 +352,28 @@ video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 .menu-item {
     background: transparent;
     color: var(--text-main);
-    padding: 12px 16px; /* Larger touch targets for mobile */
+    padding: 10px 16px;
     text-align: left;
     width: 100%;
     border-radius: 0;
-    font-size: 14px;
+    font-size: 13px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     transition: background 0.2s;
 }
+.menu-item:hover { background: rgba(255, 255, 255, 0.1); }
 .menu-item.muted { color: #fbbc04; }
 
-
-/* =========================================================
-   RESPONSIVE DEVICE MEDIA QUERIES
-========================================================= */
-
-/* --- TABLETS / IPADS / VIDEO CALL DEVICES (Portrait & Landscape) --- */
-@media screen and (max-width: 1024px) {
-    #video-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    #whiteboard-container { max-width: 50%; }
+/* --- RESPONSIVENESS --- */
+@media screen and (max-width: 768px) {
+    #video-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    #chat-panel { position: fixed; top: 100px; left: 16px; right: 16px; bottom: 120px; width: auto; margin-left: 0; z-index: 200; }
+    #whiteboard-container { position: fixed; top: 80px; left: 16px; right: 16px; bottom: 120px; max-width: none; z-index: 150; margin: 0;}
+    #control-dock { height: auto; padding: 12px; border-radius: var(--radius-lg); }
     .dock-left, .dock-right { display: none; }
     .dock-center { width: 100%; justify-content: center; }
 }
-
-/* --- MOBILE PHONES --- */
-@media screen and (max-width: 768px) {
-    #video-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-    
-    /* Float panels over video on small screens */
-    #chat-panel { 
-        position: fixed; 
-        top: 80px; left: 12px; right: 12px; 
-        bottom: calc(100px + env(safe-area-inset-bottom, 0px)); 
-        width: auto; margin-left: 0; z-index: 200; 
-    }
-    #whiteboard-container { 
-        position: fixed; 
-        top: 80px; left: 12px; right: 12px; 
-        bottom: calc(100px + env(safe-area-inset-bottom, 0px)); 
-        max-width: none; z-index: 150; margin: 0;
-    }
-    
-    /* Control Dock Mobile Layout */
-    #control-dock { 
-        height: auto; 
-        padding: 10px 12px; 
-        border-radius: var(--radius-lg); 
-        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-        width: calc(100% - 24px);
-    }
-    .dock-center { flex-wrap: wrap; gap: 8px; }
-    .dock-icon { width: 44px; height: 44px; font-size: 16px; } /* Slightly smaller to fit */
-    
-    #room-header { margin: 12px 12px 0 12px; padding: 12px 16px; }
-    #meeting-body { padding: 12px 12px 100px 12px; }
-}
-
-/* --- SMART DISPLAYS / LANDSCAPE PHONES --- */
-/* Fixes vertical squishing when phone is sideways or on small smart displays */
-@media screen and (max-height: 500px) and (orientation: landscape) {
-    #room-header { padding: 8px 16px; margin: 8px 8px 0 8px; }
-    #room-header h2 { font-size: 13px; }
-    #meeting-body { padding: 8px 8px 80px 8px; }
-    
-    #control-dock { 
-        height: 56px; 
-        bottom: 8px; 
-        padding: 0 16px;
-    }
-    .dock-icon { width: 40px; height: 40px; }
-    .dock-icon.danger { width: 50px; }
-    
-    #chat-panel, #whiteboard-container { 
-        top: 60px; 
-        bottom: 80px; 
-    }
+@media screen and (max-width: 480px) {
+    #video-grid { grid-template-columns: 1fr; }
 }
