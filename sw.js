@@ -1,10 +1,14 @@
-const CACHE_NAME = 'facelink-v1.1';
+// CHANGE THIS VERSION NUMBER to force the browser to download the new CSS
+const CACHE_NAME = 'facelink-v1.3'; 
+
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
   '/script.js',
-  '/manifest.json'
+  '/manifest.json',
+  '/favicon.ico',
+  '/assets/favicon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -13,6 +17,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
+// This activate event deletes the old cache (e.g., v1.2) when v1.3 is detected
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
