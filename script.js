@@ -135,21 +135,15 @@ function initiateCall(roomId) {
         roomTitle.innerText = roomId;
         window.location.hash = roomId;
 
-        // FIX 1: Add Public Free TURN Servers to bypass strict 4G/5G and Corporate Firewalls
+        // FINAL FIX 1: Ultimate ICE Server Config (Google STUN + Twilio STUN + Metered TURN)
         myPeer = new Peer({
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    { 
-                        urls: "turn:openrelay.metered.ca:80",
-                        username: "openrelayproject",
-                        credential: "openrelayproject"
-                    },
-                    { 
-                        urls: "turn:openrelay.metered.ca:443",
-                        username: "openrelayproject",
-                        credential: "openrelayproject"
-                    }
+                    { urls: 'stun:global.stun.twilio.com:3478' },
+                    { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+                    { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+                    { urls: "turn:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
                 ]
             }
         });
@@ -171,10 +165,11 @@ function initiateCall(roomId) {
                     participantList.add(call.peer);
                     updateParticipantCount();
                 } else {
-                    // FIX 2: PeerJS Double-fire Bug Override. Update existing stream if it fires again.
+                    // FINAL FIX 2: If PeerJS double-fires, forcefully update the video source AND trigger .play()
                     const existingVideo = peerDOMWrappers[call.peer].querySelector('video');
-                    if (existingVideo && existingVideo.srcObject !== userVideoStream) {
+                    if (existingVideo) {
                         existingVideo.srcObject = userVideoStream;
+                        existingVideo.play().catch(e => console.warn("Auto-play blocked:", e));
                     }
                 }
             });
@@ -213,10 +208,11 @@ function connectToNewUser(userId, stream, userName) {
             participantList.add(userId);
             updateParticipantCount();
         } else {
-            // FIX 2: PeerJS Double-fire Bug Override
+            // FINAL FIX 2: PeerJS Double-fire Bug Override
             const existingVideo = peerDOMWrappers[userId].querySelector('video');
-            if (existingVideo && existingVideo.srcObject !== userVideoStream) {
+            if (existingVideo) {
                 existingVideo.srcObject = userVideoStream;
+                existingVideo.play().catch(e => console.warn("Auto-play blocked:", e));
             }
         }
     });
@@ -233,11 +229,19 @@ socket.on('user-disconnected', userId => {
     updateParticipantCount();
 });
 
-// FIX 3: Append to DOM BEFORE setting srcObject to force browser rendering
+// FINAL FIX 3: Bulletproof video element initialization
 function addVideoStream(video, stream, name, userId) {
     video.autoplay = true;      
     video.playsInline = true;
-    video.setAttribute('playsinline', 'true'); // Explicitly needed for iOS Safari
+    video.setAttribute('playsinline', 'true'); 
+
+    // Securely assign the stream
+    video.srcObject = stream;
+    
+    // Force play the moment metadata is loaded
+    video.onloadedmetadata = () => {
+        video.play().catch(err => console.warn("Autoplay blocked by browser:", err));
+    };
 
     const wrapper = document.createElement('div');
     wrapper.className = 'video-wrapper';
@@ -249,13 +253,6 @@ function addVideoStream(video, stream, name, userId) {
 
     wrapper.append(video, nameLabel);
     videoGrid.append(wrapper);
-
-    // Assign stream after it's securely in the DOM
-    video.srcObject = stream;
-    
-    video.addEventListener('loadedmetadata', () => {
-        video.play().catch(err => console.warn("Autoplay blocked by browser:", err));
-    });
 
     return wrapper;
 }
