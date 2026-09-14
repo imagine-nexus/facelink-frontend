@@ -135,7 +135,17 @@ function initiateCall(roomId) {
         roomTitle.innerText = roomId;
         window.location.hash = roomId;
 
-        myPeer = new Peer();
+        // THE FIX: Add robust Google STUN servers to bypass strict router firewalls
+        myPeer = new Peer({
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    { urls: 'stun:stun3.l.google.com:19302' }
+                ]
+            }
+        });
 
         myPeer.on('open', userId => {
             socket.emit('join-room', roomId, userId, myName, isHost);
@@ -174,7 +184,8 @@ function initiateCall(roomId) {
             }
         });
 
-    }).catch(() => {
+    }).catch((err) => {
+        console.error(err);
         alert('Media permissions are required to participate in the meeting.');
     });
 }
@@ -205,7 +216,14 @@ socket.on('user-disconnected', userId => {
 
 function addVideoStream(video, stream, name, userId) {
     video.srcObject = stream;
-    video.addEventListener('loadedmetadata', () => video.play());
+    
+    // THE FIX: Required attributes to prevent black screens on modern browsers
+    video.autoplay = true;      
+    video.playsInline = true;
+
+    video.addEventListener('loadedmetadata', () => {
+        video.play().catch(err => console.warn("Autoplay blocked by browser:", err));
+    });
 
     const wrapper = document.createElement('div');
     wrapper.className = 'video-wrapper';

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'facelink-prod-v2.1';
+const CACHE_NAME = 'facelink-prod-v2.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
