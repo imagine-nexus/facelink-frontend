@@ -135,14 +135,21 @@ function initiateCall(roomId) {
         roomTitle.innerText = roomId;
         window.location.hash = roomId;
 
-        // THE FIX: Add robust Google STUN servers to bypass strict router firewalls
+        // FIX 1: Add Public Free TURN Servers to bypass strict 4G/5G and Corporate Firewalls
         myPeer = new Peer({
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
-                    { urls: 'stun:stun1.l.google.com:19302' },
-                    { urls: 'stun:stun2.l.google.com:19302' },
-                    { urls: 'stun:stun3.l.google.com:19302' }
+                    { 
+                        urls: "turn:openrelay.metered.ca:80",
+                        username: "openrelayproject",
+                        credential: "openrelayproject"
+                    },
+                    { 
+                        urls: "turn:openrelay.metered.ca:443",
+                        username: "openrelayproject",
+                        credential: "openrelayproject"
+                    }
                 ]
             }
         });
@@ -163,6 +170,12 @@ function initiateCall(roomId) {
                     peerDOMWrappers[call.peer] = addVideoStream(video, userVideoStream, callerName, call.peer);
                     participantList.add(call.peer);
                     updateParticipantCount();
+                } else {
+                    // FIX 2: PeerJS Double-fire Bug Override. Update existing stream if it fires again.
+                    const existingVideo = peerDOMWrappers[call.peer].querySelector('video');
+                    if (existingVideo && existingVideo.srcObject !== userVideoStream) {
+                        existingVideo.srcObject = userVideoStream;
+                    }
                 }
             });
             peers[call.peer] = call;
@@ -199,6 +212,12 @@ function connectToNewUser(userId, stream, userName) {
             peerDOMWrappers[userId] = addVideoStream(video, userVideoStream, userName, userId);
             participantList.add(userId);
             updateParticipantCount();
+        } else {
+            // FIX 2: PeerJS Double-fire Bug Override
+            const existingVideo = peerDOMWrappers[userId].querySelector('video');
+            if (existingVideo && existingVideo.srcObject !== userVideoStream) {
+                existingVideo.srcObject = userVideoStream;
+            }
         }
     });
     peers[userId] = call;
@@ -214,16 +233,11 @@ socket.on('user-disconnected', userId => {
     updateParticipantCount();
 });
 
+// FIX 3: Append to DOM BEFORE setting srcObject to force browser rendering
 function addVideoStream(video, stream, name, userId) {
-    video.srcObject = stream;
-    
-    // THE FIX: Required attributes to prevent black screens on modern browsers
     video.autoplay = true;      
     video.playsInline = true;
-
-    video.addEventListener('loadedmetadata', () => {
-        video.play().catch(err => console.warn("Autoplay blocked by browser:", err));
-    });
+    video.setAttribute('playsinline', 'true'); // Explicitly needed for iOS Safari
 
     const wrapper = document.createElement('div');
     wrapper.className = 'video-wrapper';
@@ -235,6 +249,13 @@ function addVideoStream(video, stream, name, userId) {
 
     wrapper.append(video, nameLabel);
     videoGrid.append(wrapper);
+
+    // Assign stream after it's securely in the DOM
+    video.srcObject = stream;
+    
+    video.addEventListener('loadedmetadata', () => {
+        video.play().catch(err => console.warn("Autoplay blocked by browser:", err));
+    });
 
     return wrapper;
 }
